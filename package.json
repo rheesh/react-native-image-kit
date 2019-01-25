@@ -1,0 +1,13 @@
+{
+  "name": "react-native-image-kit",
+  "version": "0.1.0",
+  "description": "react-native package for simple image manipulation (require expo)",
+  "main": "index.js",
+  "repository": {
+    "url": "https://github.com/rheesh/react-native-image-kit",
+    "type": "git"
+  },
+  "author": "Seungho Yi <rh22sh@gmail.com>",
+  "license": "MIT",
+  "private": false
+}
