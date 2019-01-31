@@ -1,8 +1,24 @@
+/**
+ * @overview Definition of PhotoBrowser component
+ * for 1. browsing pictures in predefined folder
+ *     2. take picture from photo library or website
+ * This source was adapted from and inspired by Halil Bilir's "React Native Photo Browser".
+ * @see https://github.com/halilb/react-native-photo-browser
+ *
+ * last modified : 2019.01.28
+ * @module components/PhotoBrowser
+ * @author Seungho.Yi <rh22sh@gmail.com>
+ * @package react-native-image-kit
+ * @license MIT
+ * @todo : 1. The image grid will be reconstructed in accordance with the screen orientation.
+ */
+
+
 'use strict';
 
 import React from 'react';
 import {ViewPropTypes, Dimensions, View, Animated, StyleSheet, StatusBar, Keyboard, Modal, Alert} from 'react-native';
-import { Root, Container, Header, Title, Button, Icon, Left, Right, Text, Toast, CardItem, Body, Item, Input, Card}
+import { Root, Container, Header, Title, Button, Icon, Left, Right, Text, Toast, CardItem, Body, Item, Input, Card, Spinner}
     from 'native-base';
 import PropTypes from 'prop-types';
 import Popup from './Popup';
@@ -16,6 +32,7 @@ export default class PhotoBrowser extends React.Component {
 
     static propTypes = {
         isModal: PropTypes.bool,
+        show: PropTypes.bool,
         folder: PropTypes.string,
         pictureList: PropTypes.object,
         style: ViewPropTypes.style,
@@ -27,10 +44,13 @@ export default class PhotoBrowser extends React.Component {
         usePhotoLib: PropTypes.bool,
         getFromWeb: PropTypes.bool,
         onClose: PropTypes.func,
+        orientation: PropTypes.string,
     };
 
     static defaultProps = {
+        style: null,
         isModal: true,
+        show: false,
         folder: 'images',
         pictureList: null,
         square: false,
@@ -41,6 +61,7 @@ export default class PhotoBrowser extends React.Component {
         usePhotoLib: true,
         getFromWeb: true,
         onClose: null,
+        orientation: 'auto',
     };
 
     constructor(props) {
@@ -49,14 +70,16 @@ export default class PhotoBrowser extends React.Component {
         this.pictureList = props.pictureList ?  props.pictureList : new PictureList(props.folder);
         this._customBtn = [];
         this._customEditorBtn = [];
+        this._orientation = [];
         this.uriModal = null;
+        this.spinnerModal = null;
         this.customMenu = null;
         this.imageRequestUri = '';
         this.state = {
             width : width,
             height: height,
             headerHeight : Common.header.height,
-            show  : false,
+            show  : props.show,
             gridShow : true,
             menuShow : true,
             isFullScreen : false,
@@ -86,10 +109,48 @@ export default class PhotoBrowser extends React.Component {
         this._customEditorBtn = btns;
     }
 
+    set supportedOrientations(orientation){
+        this._orientation = [orientation];
+    }
+
+    get supportedOrientations(){
+        let {orientation} = this.props;
+        if(orientation){
+            orientation = orientation.toLowerCase();
+            switch (orientation){
+                case 'auto' :
+                    return this._orientation;
+                case 'landscape':
+                case 'portrait':
+                    return [orientation];
+                default:
+                    break;
+            }
+        }
+        return ['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right'];
+    }
+
+    componentWillReceiveProps(nextProps, nextContext) {
+        if( this.props.show === true && nextProps.show === false ){
+            this._close();
+        } else if ( this.props.show === false && nextProps.show === true ){
+            this._open();
+        }
+    }
+
     onHeaderLayout(e) {
         const height = e.nativeEvent.layout.height;
+        const scr = Dimensions.get('window');
+        let state = {};
         if (this.state.headerHeight !== height ){
-            this.setState({headerHeight : height})
+            state.headerHeight = height;
+        }
+        if ( this.state.width !== scr.width || this.state.height !== scr.height){
+            state.width = scr.width;
+            state.height = scr.height;
+        }
+        if(Object.keys(state).length > 0){
+            this.setState(state);
         }
     }
 
@@ -145,10 +206,12 @@ export default class PhotoBrowser extends React.Component {
 
     _requestImage = async () => {
         let picture = null;
+        this.uriModal.close();
+        this.spinnerModal.open();
         if(this.imageRequestUri){
             picture = await this.pictureList.insert(this.imageRequestUri);
         }
-        this.uriModal.close();
+        this.spinnerModal.close();
         if (picture === null){
             Toast.show({
                 text: "Wrong Image Type (not JPG nor PNG)!",
@@ -230,6 +293,18 @@ export default class PhotoBrowser extends React.Component {
         return buttons;
     }
 
+    _renderSpinner() {
+        if (this.props.getFromWeb) {
+            return (
+                <Popup ref={(e) => { this.spinnerModal = e; }} style={styles.modal} backgroundColor={'rgba(0, 0, 0, 0.7)'}>
+                    <View style={{marginTop: this.state.height*0.4}}>
+                        <Spinner />
+                    </View>
+                </Popup>
+            );
+        } else return null
+    }
+
     _renderURIModal() {
         if (this.props.getFromWeb) {
             return (
@@ -268,7 +343,7 @@ export default class PhotoBrowser extends React.Component {
 
     renderPhotos() {
         if(this.state.show && this.state.gridShow){
-            const itemPerRow = Math.round(this.state.width/240.0);
+            console.log('in renderPhotos');
             let container;
             if (this.pictureList.length > 0) {
                 if (this.state.isFullScreen) {
@@ -281,11 +356,13 @@ export default class PhotoBrowser extends React.Component {
                             onSpawn={this._onSpawn}
                             useShare={this.props.useShare}
                             useSpawn={this.props.useSpawn}
-                            height={this.state.height-this.state.headerHeight-Common.statusBar.height}
+                            topMargin={this.state.headerHeight+Common.statusBar.height}
                             customBtn={this.customEditorBtn}
                         />
                     );
                 } else {
+                    const itemPerRow = this.state.width > 480 ? Math.round(this.state.width/240.0) : 2;
+                    console.log('renderPhotos!! : ', this.pictureList.length);
                     container = (
                         <Animated.View
                             style={{
@@ -300,7 +377,6 @@ export default class PhotoBrowser extends React.Component {
                                 square={this.props.square}
                                 offset={0}
                                 pictureList={this.pictureList}
-                                displaySelectionButtons={true}
                                 onPhotoTap={this._onGridPhotoTap}
                                 itemPerRow={itemPerRow}
                             />
@@ -332,9 +408,9 @@ export default class PhotoBrowser extends React.Component {
     }
 
     render() {
-        const { isModal } = this.props;
+        const { isModal, style } = this.props;
         const container = (
-            <Container>
+            <Container style={style}>
                 <OverlayMenu ref={(ref) => {this.customMenu = ref;}} buttons={this.headerBtn}
                              onOpen={this._onOpenCustomMenu} onClose={this._onCloseCustomMenu}>
                     <Header onLayout={this.onHeaderLayout}>
@@ -363,11 +439,15 @@ export default class PhotoBrowser extends React.Component {
                     </Root>
                 </OverlayMenu>
                 {this._renderURIModal()}
+                {this._renderSpinner()}
             </Container>
         );
         if (isModal){
             return(
-                <Modal visible={this.state.show} presentationStyle={'fullScreen'} onRequestClose={this.closeModal}>
+                <Modal visible={this.state.show}
+                       supportedOrientations={this.supportedOrientations}
+                       presentationStyle={'overFullScreen'}
+                       onRequestClose={this.closeModal}>
                     {container}
                 </Modal>
             );
@@ -376,40 +456,59 @@ export default class PhotoBrowser extends React.Component {
         }
     }
 
-    openModal() {
-        Keyboard.dismiss();
+    _open() {
+        //this.pictureList.cleanup();
         const {width, height} = Dimensions.get('window');
-        if ( this.state.width !== width || this.state.height !== height){
-            this.setState({
-                width : width,
-                height: height,
-                show : true,
-            });
-        } else {
-            this.setState({show : true});
+        let {orientation} = this.props;
+        if(orientation){
+            orientation = orientation.toLowerCase();
+            switch (orientation){
+                case 'auto' :
+                    if (width > height)
+                        this.supportedOrientations = 'landscape';
+                    else
+                        this.supportedOrientations = 'portrait';
+                    break;
+                case 'landscape':
+                case 'portrait':
+                    this.supportedOrientations = orientation;
+                    break;
+                default:
+                    break;
+            }
         }
-        this.pictureList.cleanup();
-        console.log('openModal', this.state);
-        /*if (width > height)
-            ScreenOrientation.allowAsync(ScreenOrientation.Orientation.LANDSCAPE);
-        else
-            ScreenOrientation.allowAsync(ScreenOrientation.Orientation.PORTRAIT);*/
+        let state = {
+            show : true,
+            gridShow : true,
+            isFullScreen : false,
+            fullScreenAnim: new Animated.Value(0),
+        };
+        if ( this.state.width !== width || this.state.height !== height){
+            state.width = width;
+            state.height = height;
+        }
+        this.setState(state);
     }
 
-    closeModal(){
+    openModal(){
+        Keyboard.dismiss();
+        this._open();
+    }
+
+    _close(){
         if(this.props.onClose){
             this.props.onClose(this.pictureList);
         } else {
-            /*if ( this.state.width > 480 && this.state.height > 480 ){
-                ScreenOrientation.allowAsync(ScreenOrientation.Orientation.ALL);
-            }*/
-            this.setState({
-                show: false,
-                currentIndex : 0,
-                isFullScreen : false,
-            });
             this.pictureList.cleanup();
         }
+        this.setState({
+            show: false,
+            currentIndex : 0,
+        });
+    }
+
+    closeModal(){
+        this._close();
     }
 }
 

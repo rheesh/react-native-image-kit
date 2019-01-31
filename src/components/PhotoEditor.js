@@ -1,6 +1,21 @@
+/**
+ * @overview Definition of PhotoEditor component.
+ * The editing function depends on the expo.ImageManipulator.
+ *
+ * This source was adapted from and inspired by Halil Bilir's "React Native Photo Browser".
+ * @see https://github.com/halilb/react-native-photo-browser
+ *
+ * last modified : 2019.01.28
+ * @module components/PhotoEditor
+ * @author Seungho.Yi <rh22sh@gmail.com>
+ * @package react-native-image-kit
+ * @license MIT
+ */
+
+
 import React from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, Text, TouchableWithoutFeedback, ViewPropTypes, ActionSheetIOS, Platform, Alert }
+import {View, StyleSheet, Text, TouchableWithoutFeedback, ViewPropTypes, ActionSheetIOS, Platform, Alert, Dimensions}
     from 'react-native';
 import { Button, Icon, Input, Item, Card, CardItem, Body } from 'native-base';
 import Popup from './Popup';
@@ -16,19 +31,25 @@ export default class PhotoEditor extends React.Component {
         picture: PropTypes.object.isRequired,
         onClose: PropTypes.func.isRequired,
         useCircleProgress: PropTypes.bool,
-        useShare: PropTypes.bool,
         useSpawn: PropTypes.bool,
         onDelete: PropTypes.func,
         onSpawn: PropTypes.func,
+        onShare: PropTypes.func,
         customBtn: PropTypes.array,
+        topMargin: PropTypes.number,
+        bottomMargin: PropTypes.number,
     };
 
     static defaultProps = {
-        useShare: true,
+        style: null,
         useSpawn: true,
+        useCircleProgress: false,
         onDelete: null,
         onSpawn: null,
+        onShare: null,
         customBtn: [],
+        topMargin: 0,
+        bottomMargin: 0,
     };
 
     constructor(props) {
@@ -47,8 +68,6 @@ export default class PhotoEditor extends React.Component {
         this._onHorizontalFlip = this._onHorizontalFlip.bind(this);
         this._onUndo = this._onUndo.bind(this);
         this._onReset = this._onReset.bind(this);
-        this._onShare = this._onShare.bind(this);
-        this._onDelete = this._onDelete.bind(this);
         this._onSpawn = this._onSpawn.bind(this);
         this._onCrop = this._onCrop.bind(this);
         this._onSliderChange = this._onSliderChange.bind(this);
@@ -205,27 +224,6 @@ export default class PhotoEditor extends React.Component {
         this.forceUpdate();
     }
 
-    _onShare() {
-        if (Platform.OS === 'ios') {
-            ActionSheetIOS.showShareActionSheetWithOptions(
-                {
-                    url: this.state.picture.uri,
-                    message: 'Share  My Image',
-                },
-                () => {},
-                () => {},
-            );
-        } else {
-            alert(`handle sharing on android for ${this.state.picture.file}`);
-        }
-    }
-
-    _onDelete() {
-        if (this.props.onDelete) {
-            this.props.onDelete(this.state.picture);
-        }
-    }
-
     _onSpawn() {
         const picture = this.state.picture;
         Alert.alert(
@@ -267,10 +265,9 @@ export default class PhotoEditor extends React.Component {
         }
     }
 
-    _renderPhoto(styles) {
+    _renderPhoto(styles, height) {
         const { useCircleProgress } = this.props;
         const picture = this.state.picture;
-        let height = this.props.height-TOOLBAR_HEIGHT;
 
         return (
             <View style={styles.flex}>
@@ -278,7 +275,7 @@ export default class PhotoEditor extends React.Component {
                     <Photo
                         useCircleProgress={useCircleProgress}
                         picture={picture}
-                        height={height}
+                        height={height-TOOLBAR_HEIGHT}
                         onSliderChange={this._onSliderChange}
                     />
                 </TouchableWithoutFeedback>
@@ -358,9 +355,9 @@ export default class PhotoEditor extends React.Component {
             })
         }
         buttons = buttons.concat(this.customBtn);
-        if (this.props.useShare){
+        if (this.props.onShare){
             buttons.push({
-                callback: this._onShare,
+                callback: this.props.onShare,
                 bordered: true,
                 icon: {
                     name: 'share',
@@ -384,10 +381,13 @@ export default class PhotoEditor extends React.Component {
     render() {
         const styles = this.getStyle();
         const picture = this.state.picture;
+        const screen = Dimensions.get('window');
+        const {topMargin, bottomMargin, style} = this.props;
+        const height = screen.height - topMargin - bottomMargin;
 
         return (
-            <View style={[styles.flex, {height: this.props.height}]}>
-                {this._renderPhoto(styles)}
+            <View style={[styles.flex, {height: height}, style]}>
+                {this._renderPhoto(styles, height)}
                 <BottomBar
                     height={TOOLBAR_HEIGHT}
                     picture={picture}

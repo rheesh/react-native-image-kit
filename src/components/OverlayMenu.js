@@ -1,3 +1,16 @@
+/**
+ * @overview Definition of OverlayMenu component
+ * for right side icon bar
+ * This component was adapted from and inspired by @rt2zz's "React Native Drawer"
+ * @see https://github.com/root-two/react-native-drawer
+ *
+ * last modified : 2019.01.28
+ * @module components/OverlayMenu
+ * @author Seungho.Yi <rh22sh@gmail.com>
+ * @package react-native-image-kit
+ * @license MIT
+ */
+
 'use strict';
 
 import React from 'react';

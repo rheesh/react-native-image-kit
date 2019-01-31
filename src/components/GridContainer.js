@@ -1,3 +1,17 @@
+/**
+ * @overview Definition of GridContainer component
+ * for display pictures as grid style.
+ * This source was adapted from and inspired by Halil Bilir's "React Native Photo Browser".
+ * @see https://github.com/halilb/react-native-photo-browser
+ *
+ * last modified : 2019.01.28
+ * @module components/GridContainer
+ * @author Seungho.Yi <rh22sh@gmail.com>
+ * @package react-native-image-kit
+ * @license MIT
+ */
+
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Dimensions, FlatList, TouchableHighlight, View, StyleSheet, ViewPropTypes } from 'react-native';
@@ -13,7 +27,6 @@ export default class GridContainer extends React.Component {
         style: ViewPropTypes.style,
         pictureList: PropTypes.object.isRequired,
         square: PropTypes.bool,
-        displaySelectionButtons: PropTypes.bool,
         onPhotoTap: PropTypes.func,
         itemPerRow: PropTypes.number,
 
@@ -29,9 +42,11 @@ export default class GridContainer extends React.Component {
     };
 
     static defaultProps = {
-        displaySelectionButtons: false,
+        style: null,
         onPhotoTap: () => {},
         itemPerRow: 3,
+        offset: 0,
+        square: false,
     };
 
     constructor(props) {
@@ -41,46 +56,40 @@ export default class GridContainer extends React.Component {
     keyExtractor = (item, index) => index.toString();
 
     renderItem = ({ item, index }) => {
-      const {
-        displaySelectionButtons,
-        onPhotoTap,
-        onMediaSelection,
-        itemPerRow,
-        square,
-        offset,
-      } = this.props;
-      const screenWidth = Dimensions.get('window').width - offset;
-      const photoWidth = (screenWidth / itemPerRow) - (ITEM_MARGIN * (itemPerRow-1));
-
-      return (
-          <TouchableHighlight onPress={() => onPhotoTap(index)}>
-            <View style={styles.row}>
-              <Photo
-                  index={index}
-                  width={photoWidth}
-                  height={square ? photoWidth : photoWidth * 2 / 3}
-                  resizeMode={'cover'}
-                  thumbnail
-                  displaySelectionButtons={displaySelectionButtons}
-                  picture={item}
-                  onSelection={(isSelected) => {
-                    onMediaSelection(index, isSelected);
-                  }}
-              />
-            </View>
-          </TouchableHighlight>
-      );
+        const {
+            onPhotoTap,
+            itemPerRow,
+            square,
+            offset,
+        } = this.props;
+        const screenWidth = Dimensions.get('window').width - offset;
+        const photoWidth = (screenWidth / itemPerRow) - (ITEM_MARGIN * (itemPerRow-1));
+        return (
+            <TouchableHighlight onPress={() => onPhotoTap(index)}>
+                <View style={styles.row}>
+                    <Photo
+                        index={index}
+                        width={photoWidth}
+                        height={square ? photoWidth : photoWidth * 2 / 3}
+                        resizeMode={'cover'}
+                        thumbnail
+                        picture={item}
+                    />
+                </View>
+            </TouchableHighlight>
+        );
     };
 
     render() {
+        const { pictureList, itemPerRow} = this.props;
         return (
-            <View style={styles.container}>
+            <View style={styles.container} >
                 <FlatList
                     horizontal={false}
                     keyExtractor={this.keyExtractor}
-                    data={this.props.pictureList.list}
+                    data={pictureList.list}
                     initialNumToRender={21}
-                    numColumns={this.props.itemPerRow}
+                    numColumns={itemPerRow}
                     renderItem={this.renderItem}
                     refreshing={true}
                 />

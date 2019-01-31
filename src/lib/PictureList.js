@@ -151,7 +151,7 @@ export default class PictureList {
         if (list === null) list = [];
         let check = true;
         for ( let item of list ){
-            let r = await FileUtil.exists(this.folder + '/' + item) && Picture.availableType(item);
+            let r = await FileUtil.exists(this.folder + '/' + item.fileName) && Picture.availableType(item.fileName);
             check = check && r;
         }
         if (check){
@@ -159,10 +159,9 @@ export default class PictureList {
                 if (item.width && item.height)
                     return new Picture(this.folder + '/' + item.fileName, item.width, item.height, true);
                 else
-                    return new Picture(this.folder + '/' + item, 0, 0, true);
+                    return new Picture(this.folder + '/' + item.fileName, 0, 0, true);
             });
         }
-        console.log('_readMediaList2', check);
         return check;
     }
 
@@ -180,9 +179,20 @@ export default class PictureList {
     }
 
     async check() {
+        let ghost = [];
         for (let item of this._list){
             let r = await item.exists();
+            if(r){
+                item.calcSize();
+            }else{
+                ghost.push(item);
+            }
             console.log('check : ', item.fileName, r);
+        }
+        if(ghost.length > 0){
+            while(ghost.length > 0){
+                await this.remove(ghost.pop().uri)
+            }
         }
     }
 
@@ -192,6 +202,7 @@ export default class PictureList {
             if ( null === await item.reset() )
                 r = false;
         }
+        await this.writeMediaList();
         return r;
     }
 
@@ -201,6 +212,7 @@ export default class PictureList {
             if ( null === await item.cleanup())
                 r = false;
         }
+        await this.writeMediaList();
         return r;
     }
 
@@ -265,49 +277,63 @@ export default class PictureList {
 
     async undo() {
         if (this.length > 0){
-            return await this.current.undo();
+            const flag = await this.current.undo();
+            if(! flag) await this.writeMediaList();
+            return this.current;
         }
         return null;
     }
 
     async resize(width, height){
         if (this.length > 0){
-            return await this.current.resize(width, height);
+            const flag = await this.current.resize(width, height);
+            if(! flag) await this.writeMediaList();
+            return true;
         }
         return null;
     }
 
     async clockwise(){
         if (this.length > 0){
-            return await this.current.clockwise();
+            const flag = await this.current.clockwise();
+            if(! flag) await this.writeMediaList();
+            return true;
         }
         return null;
     }
 
     async counterClockwise(){
         if (this.length > 0){
-            return await this.current.counterClockwise();
+            const flag = await this.current.counterClockwise();
+            if(! flag) await this.writeMediaList();
+            return true;
         }
         return null;
     }
 
     async crop(originX, originY, width, height){
         if (this.length > 0){
-            return await this.current.crop(originX, originY, width, height);
+            const flag = await this.current.crop(originX, originY, width, height);
+            if(! flag) await this.writeMediaList();
+            return true;
         }
         return null;
     }
 
     async verticalFlip(){
         if (this.length > 0){
-            return await this.current.verticalFlip();
+            const flag = await this.current.verticalFlip();
+            if(! flag) await this.writeMediaList();
+            return true;
         }
         return null;
     }
 
     async horizontalFlip(){
         if (this.length > 0){
-            return await this.current.horizontalFlip();
+            const flag = await this.current.horizontalFlip();
+            if(! flag) await this.writeMediaList();
+            return true;
         }
         return null;
     }

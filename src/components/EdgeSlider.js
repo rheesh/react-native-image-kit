@@ -1,12 +1,11 @@
 /**
  * @overview Definition of EdgeSlider Component for croping picture.
- * last modified : 2019.01.09
  *
- * This is designed by referring to the source of "react-native-mult-slider".
- * Thank you for Tomas Roos, developer of "react-native-mult-slider."
+ * This source was adapted from and inspired by Tomas Roos's "React Native Multi Slider."
  * @see https://github.com/ptomasroos/react-native-multi-slider/blob/master/converters.js
  *
- * @module lib/PictureList
+ * last modified : 2019.01.09
+ * @module component/EdgeSlider
  * @author Seungho.Yi <rh22sh@gmail.com>
  * @package react-native-image-kit
  * @license MIT

@@ -12,7 +12,6 @@
 import { Image } from "react-native";
 import { ImageManipulator } from "expo";
 import FileUtil from "./FileUtil";
-import Common from "./Common";
 
 // Only image files of jpg type and png type are supported.
 const imageType = new Set(['jpeg', 'jpg', 'png']);
@@ -87,11 +86,23 @@ export default class Picture {
     }
 
     get width() {
+        if(this.length === 0) return 0;
         return this._history[0].width;
     }
 
+    set width( value ) {
+        if(this.length === 0) return 0;
+        else return this._history[0].width = value;
+    }
+
     get height() {
+        if(this.length === 0) return 0;
         return this._history[0].height;
+    }
+
+    set height( value ) {
+        if(this.length === 0) return 0;
+        else return this._history[0].height = value;
     }
 
     get uri() {
@@ -138,11 +149,12 @@ export default class Picture {
         return Picture.type(this.uri);
     }
 
-    async calcSize() {
+    calcSize() {
         try{
-            await Image.getSize(this.uri, (width, height) => {
+            Image.getSize(this.uri, (width, height) => {
                 this._history[0].width = width;
                 this._history[0].height = height;
+                console.log("calcSize in Pictues.js", width, height);
             });
         } catch (err){
             console.log("calcSize in Pictues.js", err);
@@ -164,45 +176,49 @@ export default class Picture {
         return null;
     }
 
-    async cleanup(){
+    cleanup(){
         if ( this.length > 1 ) {
             let history = this._history;
             this._history = [ history.shift() ];
             for (let item of history) {
-                await FileUtil.delete(item.uri);
+                FileUtil.delete(item.uri);
             }
         }
-        return this;
+        return false;
     }
 
     async reset() {
+        let flag = true;
         if ( this.length > 1 ) {
             let src = this._history.pop();
             if (await FileUtil.copy(src.uri, this._uri)){
+                flag = src.width === this.width && src.height === this.height;
                 let history = this._history;
                 this._history = [src];
                 for (let item of history) {
-                    FileUtil.delete(item.uri);
+                    await FileUtil.delete(item.uri);
                 }
             } else {
                 this._history.push(src);
                 return null;
             }
         }
-        return this;
+        return flag;
     }
 
     async undo() {
+        let flag = true;
         if ( this.length > 1 ) {
             const last = this._history.shift();
             if (await FileUtil.copy(this.uri, this._uri)){
-                FileUtil.delete(last.uri);
+                flag = last.width === this.width && last.height === this.height;
+                await FileUtil.delete(last.uri);
             }else{
                 this._history.unshift(last);
                 return null;
             }
         }
-        return this;
+        return flag;
     }
 
     async remove() {
@@ -242,11 +258,9 @@ export default class Picture {
         if (! downURI){
             downURI = orgName;
         }
-        console.log("getPicture in Pictue.js : ", uri, downURI);
         if (Picture.availableType(downURI)){
             const target = FileUtil.isFullPath(downURI) ? downURI : FileUtil.documentFolder + '/' + downURI;
-            let res = uri.startsWith('file:') ? await FileUtil.move(uri, target) : await FileUtil.download(uri, target);
-            console.log("getPicture in Pictue.js : ", res);
+            uri.startsWith('file:') ? await FileUtil.move(uri, target) : await FileUtil.download(uri, target);
             return new Picture(target, width, height, tempFolderExist);
         }
         return null;
@@ -256,16 +270,17 @@ export default class Picture {
 
     static base64 = false;
 
-    async maipulate(options){
+    async manipulate(options){
         const format = this.format;
         if ( format ){
             try{
                 const result = await ImageManipulator.manipulateAsync(this.uri, options,
                     { compress: Picture.compress, format: format, base64: Picture.base64 });
+                const flag = this.width === result.width && this.height === result.height;
                 await this._unshift( result.uri, result.width, result.height );
-                return this;
+                return flag;
             } catch (e) {
-                console.log("maipulate in Picture :", e, "options :", options);
+                console.log("manipulate in Picture :", e, "options :", options);
             }
         }
         return null;
@@ -275,13 +290,13 @@ export default class Picture {
         width = Math.round(parseFloat(width));
         height = Math.round(parseFloat(height));
         if (isNaN(width) || isNaN(height) || width === 0 || height === 0) return null;
-        return await this.maipulate([{ resize: { width: width, height: height } }]);
+        return await this.manipulate([{ resize: { width: width, height: height } }]);
     }
 
     async rotate(angle){
         angle = parseFloat(angle);
         if (isNaN(angle) || angle === 0 ) return null;
-        return await this.maipulate([{ rotate: angle}]);
+        return await this.manipulate([{ rotate: angle}]);
     }
 
     async clockwise(){
@@ -298,14 +313,14 @@ export default class Picture {
         width = Math.round(parseFloat(width));
         height = Math.round(parseFloat(height));
         if (isNaN(originX) || isNaN(originY) || isNaN(width) || isNaN(height) || width === 0 || height === 0) return null;
-        return await this.maipulate([{ crop: { originX: originX, originY: originY, width: width, height: height } }]);
+        return await this.manipulate([{ crop: { originX: originX, originY: originY, width: width, height: height } }]);
     }
 
     async verticalFlip(){
-        return await this.maipulate([{ flip: { vertical: true }}]);
+        return await this.manipulate([{ flip: { vertical: true }}]);
     }
 
     async horizontalFlip(){
-        return await this.maipulate([{ flip: { horizontal: true }}]);
+        return await this.manipulate([{ flip: { horizontal: true }}]);
     }
 }

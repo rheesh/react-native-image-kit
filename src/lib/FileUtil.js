@@ -7,8 +7,8 @@
  * @package react-native-image-kit
  * @license MIT
  */
-
 'use strict';
+
 import { FileSystem } from "expo";
 
 const uuidv4 = require('uuid/v4');

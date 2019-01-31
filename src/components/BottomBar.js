@@ -1,3 +1,16 @@
+/**
+ * @overview Definition of BottomBar component
+ * for bottom toolbar of PhotoEditor.
+ * This source was adapted from and inspired by Halil Bilir's "React Native Photo Browser".
+ * @see https://github.com/halilb/react-native-photo-browser
+ *
+ * last modified : 2019.01.28
+ * @module components/BottomBar
+ * @author Seungho.Yi <rh22sh@gmail.com>
+ * @package react-native-image-kit
+ * @license MIT
+ */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ScrollView, Text, StyleSheet, Dimensions, View } from 'react-native';
@@ -46,6 +59,16 @@ export default class BottomBar extends React.Component {
         }
     }
 
+    _onLayout = (e) => {
+        const scr = Dimensions.get('window');
+        if ( this.state.width !== scr.width || this.state.height !== scr.height){
+            this.setState({
+                width: scr.width,
+                height: scr.height,
+            });
+        }
+    };
+
     render() {
         const { picture, height, onResizeByWidth, onResizeByHeight,
             onCrop, onVerticalFlip, onHorizontalFlip, onUndo,
@@ -53,6 +76,7 @@ export default class BottomBar extends React.Component {
         const styles = this.getStyles(this.state.width, this.state.height);
         return (
             <BarContainer
+                onLayout={this._onLayout}
                 height={height}
                 style={styles.container}
             >

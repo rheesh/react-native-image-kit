@@ -1,5 +1,5 @@
 /**
- * This source is from "react-native-multi-slider"
+ * This source is from "@ptomasroos/react-native-multi-slider"
  * Thank you for sharing a great sauce.
  * @copyright Tomas Roos
  * @see https://github.com/ptomasroos/react-native-multi-slider/blob/master/converters.js

@@ -1,6 +1,15 @@
-import React from 'react';
+/**
+ * @overview Definition of Popup component
+ * for various dialog
+ * last modified : 2019.01.09
+ * @module components/Popup
+ * @author Seungho.Yi <rh22sh@gmail.com>
+ * @package react-native-image-kit
+ * @license MIT
+ */
 
-import {Modal, View, Text, ViewPropTypes, StyleSheet, TouchableWithoutFeedback, Dimensions} from 'react-native';
+import React from 'react';
+import { Modal, View, ViewPropTypes, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import PropTypes from 'prop-types';
 
 export default class Popup extends React.Component {

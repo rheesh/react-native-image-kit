@@ -1,4 +1,15 @@
-
+/**
+ * @overview Definition of Photo component
+ * for display and crop picture object
+ * This source was adapted from and inspired by Halil Bilir's "React Native Photo Browser".
+ * @see https://github.com/halilb/react-native-photo-browser
+ *
+ * last modified : 2019.01.28
+ * @module components/Photo
+ * @author Seungho.Yi <rh22sh@gmail.com>
+ * @package react-native-image-kit
+ * @license MIT
+ */
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
@@ -42,7 +53,6 @@ export default class Photo extends Component {
     constructor(props) {
         super(props);
 
-        this.image = null;
         this._onProgress = this._onProgress.bind(this);
         this._onError = this._onError.bind(this);
         this._onLoad = this._onLoad.bind(this);
@@ -50,17 +60,40 @@ export default class Photo extends Component {
 
         this.state = {
             picture: props.picture,
+            width: props.picture.width,
+            height: props.picture.height,
             progress: 0,
             error: false,
         };
+        this.getSize();
     }
+
+    getSize = () => {
+        try{
+            Image.getSize(this.state.picture.uri, (width, height) => {
+                if(this.state.width === width && this.state.height === height) return;
+                else{
+                    this.state.picture.width = width;
+                    this.state.picture.height = height;
+                    this.setState({
+                        width: width,
+                        height: height,
+                    });
+                }
+            });
+        } catch (err){
+            console.log("getSize in Photo.js", err);
+        }
+    };
 
     componentWillReceiveProps(nextProps, nextContext) {
         this.setState({
             picture: nextProps.picture,
+            width: nextProps.picture.width,
+            height: nextProps.picture.height,
             progress: 0,
             error: false,
-        });
+        }, this.getSize);
     }
 
     _onProgress(event) {
@@ -120,7 +153,6 @@ export default class Photo extends Component {
         const { resizeMode } = this.props;
         return (
             <Image
-                ref={ref => this.image = ref}
                 style={[styles.image, sizeStyle]}
                 source={{uri: this.state.picture.uri}}
                 onProgress={this._onProgress}

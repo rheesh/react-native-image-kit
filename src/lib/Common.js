@@ -1,6 +1,6 @@
 'use strict';
 
-import {Platform, Text} from "react-native";
+import { Platform, Text } from "react-native";
 import { Button, Icon } from "native-base";
 import React from "react";
 
@@ -20,10 +20,11 @@ export default {
         return stringToTrim.replace(/\s+$/,"");
     },
 
+    /* -------------------------------------------------------------------------------------------- */
+
     sleep : async function(ms) {
         return new Promise(res => setTimeout(res, ms));
     },
-    /* -------------------------------------------------------------------------------------------- */
 
     equal : function (x, y) {
         if ( x === y ) return true;
@@ -107,8 +108,7 @@ export default {
 
     platform,
 
-    /* Below is copy from Native-Base package */
-    // Color
+    /* Below is copy from Native-Base */
     color: {
         primary: platform === "ios" ? "#007aff" : "#3F51B5",
         info: "#62B1F6",
@@ -120,7 +120,6 @@ export default {
         textColor: "#303030",
     },
 
-    // Header
     header: {
         height: 64,
         padding: platform === "ios" ? undefined : 12,
@@ -140,8 +139,10 @@ export default {
         defaultBorder: platform === "ios" ? "#a7a6ab" : "#3F51B5",
     },
 
-    searchBarHeight: platform === "ios" ? 30 : 40,
-    searchBarInputHeight: platform === "ios" ? 30 : 50,
+    searchBar : {
+        height: platform === "ios" ? 30 : 40,
+        inputHeight: platform === "ios" ? 30 : 50,
+    },
 
     input: {
         fontSize: 17,

@@ -9,5 +9,14 @@
   },
   "author": "Seungho Yi <rh22sh@gmail.com>",
   "license": "MIT",
-  "private": false
+  "private": false,
+  "dependencies": {
+    "expo": "^31.0.2",
+    "native-base": "^2.8.1",
+    "prop-types": "^15.6.2",
+    "react": "16.5.0",
+    "react-native": "https://github.com/expo/react-native/archive/sdk-31.0.0.tar.gz",
+    "react-native-progress": "^3.5.0",
+    "uuid": "^3.3.2"
+  }
 }
