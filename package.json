@@ -1,6 +1,6 @@
 {
   "name": "react-native-image-kit",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "react-native package for simple image manipulation (require expo)",
   "main": "index.js",
   "repository": {
