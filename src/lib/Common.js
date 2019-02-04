@@ -1,6 +1,6 @@
 'use strict';
 
-import { Platform, Text } from "react-native";
+import { Platform, Text, Dimensions } from "react-native";
 import { Button, Icon } from "native-base";
 import React from "react";
 
