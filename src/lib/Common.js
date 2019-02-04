@@ -4,7 +4,10 @@ import { Platform, Text } from "react-native";
 import { Button, Icon } from "native-base";
 import React from "react";
 
+const scr = Dimensions.get("window");
 const platform = Platform.OS;
+const isIphoneX = platform === "ios" && (scr.height === 812 || scr.width === 812);
+const isIphoneXR = platform === "ios" && (scr.height === 896 || scr.width === 896);
 
 export default {
     /* this trim, ltrim, rtrim is copy from https://www.somacon.com/p355.php, © Shailesh N. Humbad */
@@ -108,6 +111,9 @@ export default {
 
     platform,
 
+    isIphoneX,
+    isIphoneXR,
+
     /* Below is copy from Native-Base */
     color: {
         primary: platform === "ios" ? "#007aff" : "#3F51B5",
@@ -120,10 +126,10 @@ export default {
         textColor: "#303030",
     },
 
+    // Header
     header: {
-        height: 64,
-        padding: platform === "ios" ? undefined : 12,
-
+        height: isIphoneXR ? 72 : 64,
+        padding: platform === "ios" ? (isIphoneXR ? 26 : 4) : 18,
     },
 
     statusBar: {

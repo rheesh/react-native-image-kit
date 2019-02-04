@@ -129,14 +129,14 @@ When you click on the thumbnail of the image, PhotoEditor component open it.
 | `isModal`          | Boolean  | `true`        | If true, PhotoBrowser is full screen modal box.                       |
 | `folder`           | String   | `'images'`    | Path to the image folder. THis path shoud be under "expo.FileSystem.documentDirectory" |
 | `pictureList`      | Object   | `null`        | "PictureList" type object. If assigned, PhotoBrowser use this this list. Else, the PhotoBrowser will generate a PictureList object from the image files stored in the folder path.  |
-| `isModal`          | Boolean  | `true`          | If true, PhotoBrowser is full screen modal box.                       |
-| `useShare`         | Boolean  | `true`          | If true, displays button for sharing photo in the PhotoEditor.        |
-| `useSpawn`         | Boolean  | `true`          | If true, displays button for spawning photo in the PhotoEditor.       |
-| `usePhotoLib`      | Boolean  | `true`          | If true, displays button for importing photo with the "expo.ImagePicker". |
-| `getFromWeb`       | Boolean  | `true`          | If true, displays button for downloading photo from the web.          |
-| `square`           | Boolean  | `false`         | If true, displays the thumbnails as squares.                          |
-| `onClose`          | Boolean  | `true`          | If true, displays button for downloading photo from the web.          |
-| `orientation`      | String   | `'auto'`        | One of 'auto', 'landscape', 'portrait'. It is effective only when the "isModal" is true. The orientation of the modal box is fixed according to the orientation value. If set to 'auto', use the current orientation of the device. |
+| `onShare`          | function | `null`        | To pass sharing function to PhotoBrowser's PhotoEditor component      |
+| `isModal`          | Boolean  | `true`        | If true, PhotoBrowser is full screen modal box.                       |
+| `useSpawn`         | Boolean  | `true`        | If true, displays button for spawning photo in the PhotoEditor.       |
+| `usePhotoLib`      | Boolean  | `true`        | If true, displays button for importing photo with the "expo.ImagePicker". |
+| `getFromWeb`       | Boolean  | `true`        | If true, displays button for downloading photo from the web.          |
+| `square`           | Boolean  | `false`       | If true, displays the thumbnails as squares.                          |
+| `onClose`          | Boolean  | `true`        | If true, displays button for downloading photo from the web.          |
+| `orientation`      | String   | `'auto'`      | One of 'auto', 'landscape', 'portrait'. It is effective only when the "isModal" is true. The orientation of the modal box is fixed according to the orientation value. If set to 'auto', use the current orientation of the device. |
 
 2. Setter
 
@@ -231,4 +231,6 @@ For more information, please refer to the "src/lib/Common.js".
 
 * The OverlayMenu component was adapted from and inspired by @rt2zz's "React Native Drawer"
 
-## License : MIT
+## License
+
+**MIT**

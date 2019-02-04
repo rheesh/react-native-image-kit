@@ -39,7 +39,7 @@ export default class PhotoBrowser extends React.Component {
         square: PropTypes.bool,
         customBtn: PropTypes.array,
         customEditorBtn: PropTypes.array,
-        useShare: PropTypes.bool,
+        onShare: PropTypes.func,
         useSpawn: PropTypes.bool,
         usePhotoLib: PropTypes.bool,
         getFromWeb: PropTypes.bool,
@@ -56,7 +56,7 @@ export default class PhotoBrowser extends React.Component {
         square: false,
         customBtn: [],
         customEditorBtn: [],
-        useShare: true,
+        onShare: null,
         useSpawn: true,
         usePhotoLib: true,
         getFromWeb: true,
@@ -155,7 +155,7 @@ export default class PhotoBrowser extends React.Component {
     }
 
     _onGridPhotoTap(index) {
-        console.log('_onGridPhotoTap : ',index);
+        //console.log('_onGridPhotoTap : ',index);
         this.pictureList.currentIndex = index;
         this._toggleFullScreen(true);
     }
@@ -180,10 +180,10 @@ export default class PhotoBrowser extends React.Component {
         if ( result.cancelled ) {
             this.setState({gridShow: true});
         }else{
-            console.log('onImageAdd1', result);
+            //console.log('onImageAdd1', result);
             let {uri, width, height} = result;
             picture = await this.pictureList.insert(uri, width, height);
-            console.log('onImageAdd2', picture);
+            //console.log('onImageAdd2', picture);
             if (picture === null){
                 Toast.show({
                     text: "Wrong Image Type (not JPG nor PNG)!",
@@ -343,7 +343,7 @@ export default class PhotoBrowser extends React.Component {
 
     renderPhotos() {
         if(this.state.show && this.state.gridShow){
-            console.log('in renderPhotos');
+            //console.log('in renderPhotos');
             let container;
             if (this.pictureList.length > 0) {
                 if (this.state.isFullScreen) {
@@ -354,7 +354,7 @@ export default class PhotoBrowser extends React.Component {
                             onClose={this._onCloseEditor}
                             onDelete={this._onDelete}
                             onSpawn={this._onSpawn}
-                            useShare={this.props.useShare}
+                            onShare={this.props.onShare}
                             useSpawn={this.props.useSpawn}
                             topMargin={this.state.headerHeight+Common.statusBar.height}
                             customBtn={this.customEditorBtn}
@@ -362,7 +362,7 @@ export default class PhotoBrowser extends React.Component {
                     );
                 } else {
                     const itemPerRow = this.state.width > 480 ? Math.round(this.state.width/240.0) : 2;
-                    console.log('renderPhotos!! : ', this.pictureList.length);
+                    //console.log('renderPhotos!! : ', this.pictureList.length);
                     container = (
                         <Animated.View
                             style={{
@@ -413,7 +413,7 @@ export default class PhotoBrowser extends React.Component {
             <Container style={style}>
                 <OverlayMenu ref={(ref) => {this.customMenu = ref;}} buttons={this.headerBtn}
                              onOpen={this._onOpenCustomMenu} onClose={this._onCloseCustomMenu}>
-                    <Header onLayout={this.onHeaderLayout}>
+                    <Header onLayout={this.onHeaderLayout} style={styles.header}>
                         <StatusBar translucent={false} animated />
                         <Left style={{flex: 1}}>
                             <Button transparent style={styles.headerButton} onPress={this.closeModal }>
@@ -516,6 +516,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: 'black',
+    },
+    header: {
+        height: Common.header.height,
+        paddingTop: Common.header.padding,
     },
     modal: {
         paddingTop: 20,

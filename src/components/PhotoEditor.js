@@ -146,7 +146,7 @@ export default class PhotoEditor extends React.Component {
     }
 
     _onChangeHeightText( text ){
-        console.log('_onChangeHeightText', text);
+        //console.log('_onChangeHeightText', text);
         if (text){
             const height = Number(text);
             this.setState({
@@ -209,7 +209,7 @@ export default class PhotoEditor extends React.Component {
         const originY = top;
         const width = picture.width - left - right;
         const height = picture.height - top - bottom;
-        console.log(originX, originY, width, height);
+        //console.log(originX, originY, width, height);
         await picture.crop(originX, originY, width, height);
         this.forceUpdate();
     }

@@ -18,5 +18,9 @@
     "react-native": "https://github.com/expo/react-native/archive/sdk-31.0.0.tar.gz",
     "react-native-progress": "^3.5.0",
     "uuid": "^3.3.2"
+  },
+  "keywords": ["image", "image-crop", "image-flip", "image-rotate", "react-native", "expo"],
+  "bugs": {
+    "url": "https://github.com/rheesh/react-native-image-kit/issues"
   }
 }
