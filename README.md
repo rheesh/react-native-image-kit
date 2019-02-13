@@ -231,9 +231,18 @@ For more information, please refer to the "src/lib/Common.js".
 
 ## Changelog
 
-**0.5.2** : Correct some bug. (Heather Height Issues on Android, Property issues of the PhotoBrowser component)
+**0.5.4**
+- Remove some bug(resize, etc...).  
+- Add orientation props to Popup component.
 
-**0.5.1** : Modify readme.md
+**0.5.3**
+- Remove some bug.
+
+**0.5.2** 
+- Remove some bug. (Heather Height Issues on Android, Property issues of the PhotoBrowser component)
+
+**0.5.1**
+- Modify readme.md
 
 
 ## Acknowledgement
