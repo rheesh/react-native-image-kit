@@ -51,6 +51,7 @@ export default class GridContainer extends React.Component {
 
     constructor(props) {
         super(props);
+        this.itemPerRow = props.itemPerRow;
     }
 
     keyExtractor = (item, index) => index.toString();
@@ -58,10 +59,10 @@ export default class GridContainer extends React.Component {
     renderItem = ({ item, index }) => {
         const {
             onPhotoTap,
-            itemPerRow,
             square,
             offset,
         } = this.props;
+        const itemPerRow = this.itemPerRow;
         const screenWidth = Dimensions.get('window').width - offset;
         const photoWidth = (screenWidth / itemPerRow) - (ITEM_MARGIN * (itemPerRow-1));
         return (
@@ -81,7 +82,8 @@ export default class GridContainer extends React.Component {
     };
 
     render() {
-        const { pictureList, itemPerRow} = this.props;
+        const { pictureList } = this.props;
+        const itemPerRow = this.itemPerRow;
         return (
             <View style={styles.container} >
                 <FlatList

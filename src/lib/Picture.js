@@ -154,7 +154,7 @@ export default class Picture {
             Image.getSize(this.uri, (width, height) => {
                 this._history[0].width = width;
                 this._history[0].height = height;
-                console.log("calcSize in Pictues.js", width, height);
+                //console.log("calcSize in Pictues.js", width, height);
             });
         } catch (err){
             console.log("calcSize in Pictues.js", err);

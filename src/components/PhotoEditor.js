@@ -15,9 +15,9 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import {View, StyleSheet, Text, TouchableWithoutFeedback, ViewPropTypes, ActionSheetIOS, Platform, Alert, Dimensions}
+import {View, StyleSheet, Text, TouchableWithoutFeedback, ViewPropTypes, Alert, Dimensions}
     from 'react-native';
-import { Button, Icon, Input, Item, Card, CardItem, Body } from 'native-base';
+import {Button, Icon, Input, Item, Card, CardItem, Body, Toast} from 'native-base';
 import Popup from './Popup';
 import BottomBar from './BottomBar';
 import Photo from './Photo';
@@ -54,6 +54,8 @@ export default class PhotoEditor extends React.Component {
 
     constructor(props) {
         super(props);
+
+        this.screen = Dimensions.get('window');
 
         this._onClose = this._onClose.bind(this);
         this._onResizeByWidth = this._onResizeByWidth.bind(this);
@@ -106,6 +108,10 @@ export default class PhotoEditor extends React.Component {
         };
         //console.log('componentWillReceiveProps:', this.inputWidth._root);
     }
+
+    _onLayout = (e) => {
+        this.screen = Dimensions.get('window');
+    };
 
     async _onClose(){
         await this.state.picture.cleanup();
@@ -162,15 +168,16 @@ export default class PhotoEditor extends React.Component {
     }
 
     async _onResize(){
-        let picture = await this.state.picture.resize(this.state.width, this.state.height);
-        if (picture === null){
-            this.setState({
-                modal: false,
-            });
-        } else {
-            this.setState({
-                modal: false,
-                picture: picture,
+        let result = await this.state.picture.resize(this.state.width, this.state.height);
+        this.setState({
+            modal: false,
+        });
+        if (result === null){
+            Toast.show({
+                text: "Can not resize image!",
+                buttonText: "Close",
+                type: "warning",
+                duration: 3000
             });
         }
     }
@@ -381,12 +388,12 @@ export default class PhotoEditor extends React.Component {
     render() {
         const styles = this.getStyle();
         const picture = this.state.picture;
-        const screen = Dimensions.get('window');
         const {topMargin, bottomMargin, style} = this.props;
-        const height = screen.height - topMargin - bottomMargin;
+        const height = this.screen.height - topMargin - bottomMargin;
+        const orientation = (this.screen.width < 480 || this.screen.height < 480) ? 'portrait' : null;
 
         return (
-            <View style={[styles.flex, {height: height}, style]}>
+            <View style={[styles.flex, {height: height}, style]} onLayout={this._onLayout}>
                 {this._renderPhoto(styles, height)}
                 <BottomBar
                     height={TOOLBAR_HEIGHT}
@@ -402,21 +409,12 @@ export default class PhotoEditor extends React.Component {
                     onReset={this._onReset}
                     customBtn={this.topLineBtn}
                 />
-                <Popup style={styles.modal} visible={this.state.modal} >
+                <Popup style={styles.modal} visible={this.state.modal} orientation={orientation}>
                     {this._renderModal(styles)}
                 </Popup>
             </View>
         );
     }
-
-    bottomLine = [
-        {
-            callback: (picture) => { this._onResizeByWidth(picture) },
-            iconName: 'arrow-expand-horizontal',
-            iconType: 'MaterialCommunityIcons',
-            label: 'Apply',
-        },
-    ];
 
     getStyle() {
         return StyleSheet.create({

@@ -33,6 +33,11 @@ import { Picture, PhotoEditor } from "react-native-image-kit";
     }
 
     render() {
+    
+        let picture = new Picture(uri);
+                        
+        ...     
+    
         return (
             ...
                 <PhotoEditor
@@ -64,11 +69,14 @@ class Images extends React.Component {
     ...
 
     _onClose = (pictureList) => {
-        this.props.navigation.navigate('Home')
+        this.props.navigation.navigate('Home');
         pictureList.cleanup();
     };
 
     render() {
+        let pictureList = new PictureList('images');
+            
+    
         return (
             <PhotoBrowser pictureList={pictureList} // pictureList should be "PictureList" type object.
                           isModal={false}
@@ -201,6 +209,7 @@ expo.FileSystem.documentDirectory.
             text: { label: 'action' }
         }
     ];
+    
     return (
         <PhotoEditor
             picture={picture}

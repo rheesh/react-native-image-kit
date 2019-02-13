@@ -7,6 +7,7 @@
  * @package react-native-image-kit
  * @license MIT
  */
+'use strict';
 
 import React from 'react';
 import { Modal, View, ViewPropTypes, StyleSheet, TouchableWithoutFeedback } from 'react-native';
@@ -20,6 +21,7 @@ export default class Popup extends React.Component {
         onDismiss: PropTypes.func,
         onShow: PropTypes.func,
         children: PropTypes.node,
+        orientation: PropTypes.string,
         backgroundColor: PropTypes.string,
     };
 
@@ -28,6 +30,7 @@ export default class Popup extends React.Component {
         visible: false,
         onDismiss: null,
         onShow: null,
+        orientation: null,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
     };
 
@@ -58,12 +61,22 @@ export default class Popup extends React.Component {
         }
     }
 
+    get supportedOrientations() {
+        switch(this.props.orientation){
+            case 'portrait':
+                return ['portrait'];
+            case 'landscape':
+                return ['landscape'];
+            default:
+                return ['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right'];
+        }
+    }
+
     render() {
         const { style, children } = this.props;
-        const size = {height: this.state.height, width: this.state.width};
         return (
             <Modal ref={(e) => { this._root = e; }} onRequestClose={this.close}
-                   supportedOrientations={['landscape', 'portrait', 'portrait-upside-down']}
+                   supportedOrientations={this.supportedOrientations}
                    transparent visible={this.state.visible} >
                 <View importantForAccessibility="yes" accessibilityViewIsModal={true}
                       style={[this.styles.transparent, this.styles.absolute]} pointerEvents={'box-none'}>

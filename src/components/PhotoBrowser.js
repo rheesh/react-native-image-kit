@@ -22,7 +22,7 @@ import { Root, Container, Header, Title, Button, Icon, Left, Right, Text, Toast,
     from 'native-base';
 import PropTypes from 'prop-types';
 import Popup from './Popup';
-import { ImagePicker, ScreenOrientation } from "expo";
+import { ImagePicker } from "expo";
 import GridContainer from "./GridContainer";
 import PhotoEditor from "./PhotoEditor";
 import { PictureList, Common } from '../lib';
@@ -251,7 +251,7 @@ export default class PhotoBrowser extends React.Component {
                 duration: 300,
             }
         ).start();
-        if(!display)
+        if(!display && this.pictureList.length > 0)
             this.pictureList.current.reset();
     }
 
@@ -457,7 +457,6 @@ export default class PhotoBrowser extends React.Component {
     }
 
     _open() {
-        //this.pictureList.cleanup();
         const {width, height} = Dimensions.get('window');
         let {orientation} = this.props;
         if(orientation){
