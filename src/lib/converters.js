@@ -55,14 +55,14 @@ export function valueToPosition(value, valuesArray, sliderLength) {
 }
 
 export function positionToValue(position, valuesArray, sliderLength) {
-  var arrLength;
-  var index;
+  const arrLength = valuesArray.length - 1;
 
-  if (position < 0 || sliderLength < position) {
-    return null;
+  if (position < 0) {
+    return valuesArray[0];
+  } else if (sliderLength < position) {
+    return valuesArray[arrLength];
   } else {
-    arrLength = valuesArray.length - 1;
-    index = arrLength * position / sliderLength;
+    const index = arrLength * position / sliderLength;
     return valuesArray[Math.round(index)];
   }
 }

@@ -231,6 +231,9 @@ For more information, please refer to the "src/lib/Common.js".
 
 ## Changelog
 
+**0.5.5**
+- Rewrite EdgeSlider component. 
+
 **0.5.4**
 - Remove some bug(resize, etc...).  
 - Add orientation props to Popup component.

@@ -216,9 +216,9 @@ export default class Photo extends Component {
 
         return (
             <EdgeSlider style={style} edgeLength={edgeLength} direction={direction}
-                        sliderLength={sliderLength} trackRadius={trackWidth}
-                        min={0} max={max} key={direction}
-                        onValuesChange={ value => this._onSliderChange(direction, value) }/>
+                            sliderLength={sliderLength} trackRadius={trackWidth}
+                            min={0} max={max} key={direction}
+                            onValuesChange={ value => this._onSliderChange(direction, value) }/>
         );
     }
 

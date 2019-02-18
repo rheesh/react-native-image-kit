@@ -1,7 +1,7 @@
 /**
  * @overview Definition of EdgeSlider Component for croping picture.
  *
- * This source was adapted from and inspired by Tomas Roos's "React Native Multi Slider."
+ * This source was inspired by Tomas Roos's "React Native Multi Slider."
  * @see https://github.com/ptomasroos/react-native-multi-slider/blob/master/converters.js
  *
  * last modified : 2019.01.09
@@ -14,10 +14,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { PanResponder, View, ViewPropTypes, StyleSheet } from 'react-native';
+import { Animated, View, ViewPropTypes, StyleSheet } from 'react-native';
+import { GestureHandler } from 'expo';
 import { createArray, positionToValue, valueToPosition } from "../lib";
-
-const slipDisplacement = 200;
+const { PanGestureHandler, State } = GestureHandler;
 
 export default class EdgeSlider extends React.Component {
     static propTypes = {
@@ -35,9 +35,7 @@ export default class EdgeSlider extends React.Component {
         trackColor1: PropTypes.string,
         trackColor2: PropTypes.string,
 
-        onValuesChangeStart: PropTypes.func,
         onValuesChange: PropTypes.func,
-        onValuesChangeFinish: PropTypes.func,
     };
 
     static defaultProps = {
@@ -54,144 +52,120 @@ export default class EdgeSlider extends React.Component {
         trackColor1: 'rgba(0, 0, 0, 0.2)',
         trackColor2: 'rgba(255, 255, 255, 0.2)',
 
-        onValuesChangeStart: () => { },
         onValuesChange: value => { },
-        onValuesChangeFinish: value => { },
     };
 
     constructor(props) {
         super(props);
         this.optionsArray = createArray(props.min, props.max, props.step);
         let initialPosition = valueToPosition(props.value, this.optionsArray, props.sliderLength);
-        this.state = {
-            pressed: false,
-            value: this.props.value,
-            past: initialPosition,
-            position: initialPosition,
-        };
-        let customPanResponder = (start, move, end) => {
-            return PanResponder.create({
-                onStartShouldSetPanResponder: (evt, gestureState) => true,
-                onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
-                onMoveShouldSetPanResponder: (evt, gestureState) => true,
-                onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
-                onPanResponderGrant: (evt, gestureState) => start(),
-                onPanResponderMove: (evt, gestureState) => move(gestureState),
-                onPanResponderTerminationRequest: (evt, gestureState) => false,
-                onPanResponderRelease: (evt, gestureState) => end(),
-                onPanResponderTerminate: (evt, gestureState) => end(),
-                onShouldBlockNativeResponder: (evt, gestureState) => true,
-            });
-        };
-
-        this._panResponder = customPanResponder(
-            this.onStart,
-            this.onMove,
-            this.onEnd,
-        );
+        this.value = props.value;
+        this._direction = props.direction.toLowerCase();
+        this._translate = new Animated.Value(0);
+        if(this._direction === 'up' || this._direction === 'rtl')
+            this._offset = props.sliderLength - initialPosition;
+        else
+            this._offset = initialPosition;
+        this._translate.setOffset(this._offset);
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (this.state.pressed) {
-            return;
-        }
-
-        let nextState = {};
-        if (nextProps.min !== this.props.min ||
-            nextProps.max !== this.props.max ||
-            nextProps.value !== this.state.value ||
-            nextProps.sliderLength !== this.props.sliderLength) {
-            this.optionsArray =  createArray(nextProps.min, nextProps.max, nextProps.step);
-            nextState.position = valueToPosition(
-                nextProps.value,
-                this.optionsArray,
-                nextProps.sliderLength,
-            );
-            nextState.value = nextProps.value;
-            nextState.past = nextState.position;
-        }
-        if (nextState != {}) {
-            this.setState(nextState);
-        }
-    }
-
-    onStart = () => {
-        this.props.onValuesChangeStart();
-        this.setState({
-            pressed: true,
-        });
-    };
-
-    onMove = gestureState => {
-        let delta;
-        switch(this.props.direction.toLowerCase()){
+    _onGestureEvent = event => {
+        const {translationX, translationY} = event.nativeEvent;
+        const sliderLength = this.props.sliderLength;
+        let x = this._offset + translationX;
+        let y = this._offset + translationY;
+        switch(this._direction) {
             case 'down':
-                delta = gestureState.dy;
-                break;
             case 'up':
-                delta = -gestureState.dy;
+                if(y >= 0 && y <= sliderLength)
+                    this._translate.setValue(translationY);
                 break;
             case 'ltr':
-                delta = gestureState.dx;
-                break;
             case 'rtl':
-                delta = -gestureState.dx;
+                if(x >= 0 && x <= sliderLength)
+                    this._translate.setValue(translationX);
                 break;
             default:
-                console.log('EdgeSlider : ', "this.props.direction has improper value." );
                 return;
         }
+    };
 
-        if (Math.abs(delta) < slipDisplacement) {
-            delta += this.state.past;
-            let position = delta < 0 ? 0 : (0 > this.props.sliderLength ? this.props.sliderLength : delta);
-            let value = positionToValue(
-                position,
-                this.optionsArray,
-                this.props.sliderLength,
-            );
-            position = valueToPosition(
-                value,
-                this.optionsArray,
-                this.props.sliderLength,
-            );
-
-            if (value !== this.state.value) {
-                this.setState(
-                    {
-                        value: value,
-                        position: position,
-                    },
-                    () => {
-                        this.props.onValuesChange(this.state.value);
-                    },
-                );
+    _onHandlerStateChange = event => {
+        const {translationX, translationY} = event.nativeEvent;
+        const sliderLength = this.props.sliderLength;
+        let position = 0;
+        if (event.nativeEvent.oldState === State.ACTIVE) {
+            switch(this._direction) {
+                case 'down':
+                    position = this._offset + translationY;
+                    this.value = positionToValue( position, this.optionsArray, this.props.sliderLength );
+                    position = valueToPosition( this.value, this.optionsArray, this.props.sliderLength );
+                    this._offset = position;
+                    break;
+                case 'up':
+                    position = sliderLength - this._offset - translationY;
+                    this.value = positionToValue( position, this.optionsArray, this.props.sliderLength );
+                    position = valueToPosition( this.value, this.optionsArray, this.props.sliderLength );
+                    this._offset = sliderLength - position;
+                    break;
+                case 'ltr':
+                    position = this._offset + translationX;
+                    this.value = positionToValue( position, this.optionsArray, this.props.sliderLength );
+                    position = valueToPosition( this.value, this.optionsArray, this.props.sliderLength );
+                    this._offset = position;
+                    break;
+                case 'rtl':
+                    position = sliderLength - this._offset - translationX;
+                    this.value = positionToValue( position, this.optionsArray, this.props.sliderLength );
+                    position = valueToPosition( this.value, this.optionsArray, this.props.sliderLength );
+                    this._offset = sliderLength - position;
+                    break;
+                default:
+                    return;
             }
+            this._translate.setOffset(this._offset);
+            this._translate.setValue(0);
+            this.props.onValuesChange(this.value);
         }
     };
 
-    onEnd = () => {
-        this.setState(
-            {
-                past: this.state.position,
-                pressed: false,
-            },
-            () => {
-                let change = this.state.value;
-                this.props.onValuesChangeFinish(change);
-            },
-        );
-    };
+    componentWillReceiveProps(nextProps, nextContext) {
+        const {direction, min, max, value, sliderLength, step} = nextProps;
+        if(this._direction !== direction){
+            this._direction = direction;
+        }
+        if ( this._direction !== direction.toLowerCase() ||
+             min !== this.props.min ||
+             max !== this.props.max ||
+             value !== this.props.value ||
+             step !== this.props.step ||
+             sliderLength !== this.props.sliderLength) {
+            this.optionsArray = createArray(min, max, step);
+            let initialPosition = valueToPosition(value, this.optionsArray, sliderLength);
+            this.value = value;
+            this._direction = direction.toLowerCase();
+            this._translate = new Animated.Value(0);
+            if(this._direction === 'up' || this._direction === 'rtl')
+                this._offset = sliderLength - initialPosition;
+            else
+                this._offset = initialPosition;
+            this._translate.setOffset(this._offset);
+        }
+    }
 
     render() {
         const {style, edgeLength, trackRadius, sliderLength} = this.props;
         let styles = this.getStyle(edgeLength, trackRadius, sliderLength, );
         return (
-            <View style={[style, styles.track]} {...this._panResponder.panHandlers}>
-                <View style={styles.track1}/>
-                <View style={styles.track2}/>
-                <View style={styles.marker}/>
-            </View>
+            <PanGestureHandler
+                onGestureEvent={this._onGestureEvent}
+                onHandlerStateChange={this._onHandlerStateChange}>
+                <View style={[style, styles.track]} >
+                    <View style={styles.track1}/>
+                    <View style={styles.track2}/>
+                    <Animated.View style={styles.marker}/>
+                </View>
+            </PanGestureHandler>
         );
     }
 
@@ -220,12 +194,12 @@ export default class EdgeSlider extends React.Component {
             }
         };
 
-        switch(this.props.direction.toLowerCase()){
+        switch(this._direction){
             case 'down':
-                css.marker.top = this.state.position;
                 css.marker.left = -(edgeLength - trackRadius)/2;
                 css.marker.width = edgeLength;
                 css.marker.height = 1;
+                css.marker.transform = [ { translateY: this._translate }, ];
                 css.track.flexDirection = 'row';
                 css.track.width = trackRadius;
                 css.track.height = sliderLength;
@@ -233,10 +207,10 @@ export default class EdgeSlider extends React.Component {
                 css.track2.borderBottomRightRadius = trackRadius;
                 break;
             case 'up':
-                css.marker.bottom = this.state.position;
                 css.marker.left = -(edgeLength - trackRadius)/2;
                 css.marker.width = edgeLength;
                 css.marker.height = 1;
+                css.marker.transform = [ { translateY: this._translate }, ];
                 css.track.flexDirection = 'row';
                 css.track.width = trackRadius;
                 css.track.height = sliderLength;
@@ -244,10 +218,10 @@ export default class EdgeSlider extends React.Component {
                 css.track2.borderTopRightRadius = trackRadius;
                 break;
             case 'ltr':
-                css.marker.left = this.state.position;
                 css.marker.top = -(edgeLength - trackRadius)/2;
                 css.marker.width = 1;
                 css.marker.height = edgeLength;
+                css.marker.transform = [ { translateX: this._translate }, ];
                 css.track.flexDirection = 'column';
                 css.track.width = sliderLength;
                 css.track.height = trackRadius;
@@ -255,10 +229,10 @@ export default class EdgeSlider extends React.Component {
                 css.track2.borderBottomRightRadius = trackRadius;
                 break;
             case 'rtl':
-                css.marker.right = this.state.position;
                 css.marker.top = -(edgeLength - trackRadius)/2;
                 css.marker.width = 1;
                 css.marker.height = edgeLength;
+                css.marker.transform = [ { translateX: this._translate }, ];
                 css.track.flexDirection = 'column';
                 css.track.width = sliderLength;
                 css.track.height = trackRadius;
