@@ -170,6 +170,8 @@ export default class Photo extends Component {
         const srcWidth= this.state.picture.width;
         const srcHeight= this.state.picture.height;
 
+        if( ! srcWidth || ! srcHeight ) return null;
+
         let dispHeight = height;
         let scale = dispHeight / srcHeight;
         let dispWidth = scale * srcWidth;

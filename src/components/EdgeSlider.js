@@ -1,7 +1,7 @@
 /**
  * @overview Definition of EdgeSlider Component for croping picture.
  *
- * This source was inspired by Tomas Roos's "React Native Multi Slider."
+ * This source was adapted from and inspired by Tomas Roos's "React Native Multi Slider."
  * @see https://github.com/ptomasroos/react-native-multi-slider/blob/master/converters.js
  *
  * last modified : 2019.01.09
@@ -243,7 +243,6 @@ export default class EdgeSlider extends React.Component {
                 console.log('EdgeSlider : ', "this.props.direction has improper value." );
                 return;
         }
-
 
         return StyleSheet.create(css);
     }

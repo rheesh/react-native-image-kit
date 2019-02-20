@@ -231,6 +231,9 @@ For more information, please refer to the "src/lib/Common.js".
 
 ## Changelog
 
+**0.5.6**
+- Remove some bug. 
+
 **0.5.5**
 - Rewrite EdgeSlider component. 
 
