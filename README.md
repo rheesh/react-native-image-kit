@@ -142,6 +142,7 @@ When you click on the thumbnail of the image, PhotoEditor component open it.
 | `useSpawn`         | Boolean  | `true`        | If true, displays button for spawning photo in the PhotoEditor.       |
 | `usePhotoLib`      | Boolean  | `true`        | If true, displays button for importing photo with the "expo.ImagePicker". |
 | `getFromWeb`       | Boolean  | `true`        | If true, displays button for downloading photo from the web.          |
+| `useCamera`        | Boolean  | `true`        | If true, displays button for accessing camera.          |
 | `square`           | Boolean  | `false`       | If true, displays the thumbnails as squares.                          |
 | `onClose`          | Boolean  | `true`        | If true, displays button for downloading photo from the web.          |
 | `orientation`      | String   | `'auto'`      | One of 'auto', 'landscape', 'portrait'. It is effective only when the "isModal" is true. The orientation of the modal box is fixed according to the orientation value. If set to 'auto', use the current orientation of the device. |
@@ -231,6 +232,9 @@ For more information, please refer to the "src/lib/Common.js".
 
 ## Changelog
 
+**0.6.0**
+- Add camera access.
+
 **0.5.6**
 - Remove some bug. 
 
@@ -262,3 +266,8 @@ For more information, please refer to the "src/lib/Common.js".
 ## License
 
 **MIT**
+
+## Example
+
+You can see the source of the working app using the react-native-image-kit :
+[https://github.com/rheesh/Emarks](https://github.com/rheesh/Emarks)

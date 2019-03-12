@@ -27,6 +27,7 @@ import GridContainer from "./GridContainer";
 import PhotoEditor from "./PhotoEditor";
 import { PictureList, Common } from '../lib';
 import OverlayMenu from './OverlayMenu';
+import CameraScreen from './CameraScreen';
 
 export default class PhotoBrowser extends React.Component {
 
@@ -42,6 +43,7 @@ export default class PhotoBrowser extends React.Component {
         onShare: PropTypes.func,
         useSpawn: PropTypes.bool,
         usePhotoLib: PropTypes.bool,
+        useCamera: PropTypes.bool,
         getFromWeb: PropTypes.bool,
         onClose: PropTypes.func,
         orientation: PropTypes.string,
@@ -59,6 +61,7 @@ export default class PhotoBrowser extends React.Component {
         onShare: null,
         useSpawn: true,
         usePhotoLib: true,
+        useCamera: true,
         getFromWeb: true,
         onClose: null,
         orientation: 'auto',
@@ -72,6 +75,7 @@ export default class PhotoBrowser extends React.Component {
         this._customEditorBtn = [];
         this._orientation = [];
         this.uriModal = null;
+        this.cameraModal = null;
         this.spinnerModal = null;
         this.customMenu = null;
         this.imageRequestUri = '';
@@ -200,6 +204,35 @@ export default class PhotoBrowser extends React.Component {
         this.uriModal.open();
     };
 
+    _getImageFromCamera = async () => {
+        this.cameraModal.open();
+    };
+
+    _onCancelCamera = async () => {
+        this.cameraModal.close();
+    };
+
+    _onTakePhoto = async (photo) => {
+        let picture = null;
+        this.cameraModal.close();
+        this.spinnerModal.open();
+        console.log(photo);
+        let {uri, width, height} = photo;
+        picture = await this.pictureList.insert(uri, width, height);
+        this.spinnerModal.close();
+        if (picture === null){
+            Toast.show({
+                text: "Wrong Image Type (not JPG nor PNG)!",
+                buttonText: "Okay",
+                type: "warning",
+                duration: 3000,
+            });
+        }else{
+            this.pictureList.currentIndex = 0;
+            this._toggleFullScreen(true);
+        }
+    };
+
     _requestImageCancel = async () => {
         this.uriModal.close();
     };
@@ -290,6 +323,15 @@ export default class PhotoBrowser extends React.Component {
                 },
             })
         }
+        if (this.props.useCamera){
+            buttons.push({
+                callback: this._getImageFromCamera,
+                icon: {
+                    name: 'camera',
+                    type: 'MaterialCommunityIcons',
+                },
+            })
+        }
         return buttons;
     }
 
@@ -336,6 +378,16 @@ export default class PhotoBrowser extends React.Component {
                             </Button>
                         </CardItem>
                     </Card>
+                </Popup>
+            );
+        } else return null
+    }
+
+    _renderCameraModal() {
+        if (this.props.getFromWeb) {
+            return (
+                <Popup ref={(e) => { this.cameraModal = e; }} >
+                    <CameraScreen width={this.state.width} onCancel={this._onCancelCamera} onTakePhoto={this._onTakePhoto}/>
                 </Popup>
             );
         } else return null
@@ -440,6 +492,7 @@ export default class PhotoBrowser extends React.Component {
                 </OverlayMenu>
                 {this._renderURIModal()}
                 {this._renderSpinner()}
+                {this._renderCameraModal()}
             </Container>
         );
         if (isModal){
