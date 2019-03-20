@@ -21,14 +21,11 @@ yarn add react-native-image-kit
 
 ## Screen Shot
 
-<img src="https://raw.githubusercontent.com/rheesh/Emarks/master/assets/androidPhoneC.png" width="320"> 
-<img src="https://raw.githubusercontent.com/rheesh/Emarks/master/assets/androidPhoneD.png" width="320"> 
+<img src="https://raw.githubusercontent.com/rheesh/Emarks/master/assets/androidPhoneC.png" width="320"> <img src="https://raw.githubusercontent.com/rheesh/Emarks/master/assets/androidPhoneD.png" width="320"> 
 
-<img src="https://raw.githubusercontent.com/rheesh/Emarks/master/assets/androidTabletA.png" width="320"> 
+<img src="https://raw.githubusercontent.com/rheesh/Emarks/master/assets/androidTabletB.png" width="512"> 
 
-<img src="https://raw.githubusercontent.com/rheesh/Emarks/master/assets/androidTabletB.png" width="320"> 
-
-<img src="https://raw.githubusercontent.com/rheesh/Emarks/master/assets/androidTabletC.png" width="320"> 
+<img src="https://raw.githubusercontent.com/rheesh/Emarks/master/assets/androidTabletC.png" width="512"> 
 
 
 ## Usage
