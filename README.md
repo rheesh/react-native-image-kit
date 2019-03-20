@@ -19,6 +19,18 @@ For more information, please refer to the "package.json".
 yarn add react-native-image-kit
 ````
 
+## Screen Shot
+
+<img src="https://raw.githubusercontent.com/rheesh/Emarks/master/assets/androidPhoneC.png" width="320"> 
+<img src="https://raw.githubusercontent.com/rheesh/Emarks/master/assets/androidPhoneD.png" width="320"> 
+
+<img src="https://raw.githubusercontent.com/rheesh/Emarks/master/assets/androidTabletA.png" width="320"> 
+
+<img src="https://raw.githubusercontent.com/rheesh/Emarks/master/assets/androidTabletB.png" width="320"> 
+
+<img src="https://raw.githubusercontent.com/rheesh/Emarks/master/assets/androidTabletC.png" width="320"> 
+
+
 ## Usage
 
 ### PhotoEditor
@@ -271,3 +283,12 @@ For more information, please refer to the "src/lib/Common.js".
 
 You can see the source of the working app using the react-native-image-kit :
 [https://github.com/rheesh/Emarks](https://github.com/rheesh/Emarks)
+
+## Remarks
+
+If you find the react-native-image-kit useful, [please purchase above example app.](https://play.google.com/store/apps/details?id=com.snac.mdnote)
+(App Name : Emarks, Price : 0.99$)
+
+Or please support me with [a glass of beer :beer:](https://www.paypal.me/SeunghoYi).  
+
+
