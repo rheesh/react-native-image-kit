@@ -286,7 +286,7 @@ You can see the source of the working app using the react-native-image-kit :
 
 ## Remarks
 
-If you find the react-native-image-kit useful, [please purchase above example app.](https://play.google.com/store/apps/details?id=com.snac.mdnote)
+If you find the react-native-image-kit useful, [please purchase the example app above.](https://play.google.com/store/apps/details?id=com.snac.mdnote)
 (App Name : Emarks, Price : 0.99$)
 
 Or please support me with [a glass of beer :beer:](https://www.paypal.me/SeunghoYi).  
